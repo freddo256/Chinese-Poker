@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="nl" data-bs-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <title>Scoretracker Kaartspel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Eigen styles -->
+  <link href="./styles.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container py-3" id="app">
+
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+      <h1 class="h4 mb-0">Scoretracker Kaartspel</h1>
+      <div class="d-flex align-items-center gap-2">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="themeToggle">
+          <label class="form-check-label" for="themeToggle">Donkere modus</label>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm" id="btn-load">Laden</button>
+        <button class="btn btn-outline-danger btn-sm" id="btn-reset">Nieuw spel</button>
+      </div>
+    </div>
+
+    <!-- Setup Card -->
+    <div class="card mb-3" id="setupCard">
+      <div class="card-body">
+        <h2 class="h5 mb-3">Starten</h2>
+        <div class="mb-3">
+          <label for="namesInput" class="form-label">Spelernamen (gescheiden door komma of nieuwe regel)</label>
+          <textarea id="namesInput" class="form-control" rows="3" placeholder="Alice, Bob, Carol"></textarea>
+          <div class="form-text">Voorbeeld: <em>Alice, Bob, Carol</em> of één naam per regel.</div>
+        </div>
+        <div class="mb-3">
+          <label for="peakInput" class="form-label">Aantal rondes (piek)</label>
+          <input id="peakInput" type="number" min="1" step="1" class="form-control" placeholder="3" />
+          <div class="form-text">Bij 3 wordt de reeks: 1 2 3 2 1.</div>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          <button class="btn btn-primary" id="btn-start">Spel starten</button>
+          <button class="btn btn-outline-secondary" id="btn-sample">Voorbeeldspelers gebruiken</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Card -->
+    <div class="card mb-3 d-none" id="gameCard">
+      <div class="card-body">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-2">
+          <div class="me-2">
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge text-bg-primary badge-round" id="badgeRound">1</span>
+              <h2 class="h5 mb-0">Ronde <span id="roundNumber">1</span> / <span id="roundTotal">1</span></h2>
+            </div>
+            <div class="text-muted small mt-1">
+              Kaarten deze ronde: <strong id="cardsThisRound">1</strong>
+              &middot; Reeks: <span id="seqPreview"></span>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-2 ms-md-auto">
+            <button class="btn btn-outline-secondary btn-sm" id="btn-prev" disabled>&larr; Vorige</button>
+            <button class="btn btn-outline-secondary btn-sm" id="btn-next" disabled>Volgende &rarr;</button>
+            <button class="btn btn-outline-warning btn-sm" id="btn-unlock-round">Ontgrendel ronde</button>
+          </div>
+        </div>
+
+        <!-- Bids/Results Table -->
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>Speler</th>
+                <th style="width: 35%;">Bod</th>
+                <th style="width: 35%;">Werkelijk</th>
+                <th style="width: 15%;">Status</th>
+              </tr>
+            </thead>
+            <tbody id="roundRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scores & History -->
+    <div class="row g-3 d-none" id="postSetup">
+      <div class="col-12 col-lg-5">
+        <div class="card h-100">
+          <div class="card-body">
+            <h2 class="h6 mb-3">Scorebord</h2>
+            <div class="table-responsive">
+              <table class="table table-sm">
+                <thead>
+                  <tr><th>Speler</th><th class="text-end">Score</th></tr>
+                </thead>
+                <tbody id="scoreRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-7">
+        <div class="card h-100">
+          <div class="card-body">
+            <h2 class="h6 mb-3">Historiek</h2>
+            <div class="accordion" id="historyAcc"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sticky footer actions: verbonden knopgroep -->
+    <div class="sticky-footer p-2 mt-3 d-none" id="footerBar">
+      <div class="container d-flex flex-wrap align-items-stretch gap-2">
+        <div class="btn-group w-100" role="group" aria-label="Ronde-actieknoppen">
+          <button class="btn btn-primary" id="btn-lock-bids">Biedingen vastzetten</button>
+          <button class="btn btn-secondary" id="btn-score" disabled>Ronde scoren</button>
+          <button class="btn btn-secondary" id="btn-next-round" disabled>Volgende ronde</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container py-3" id="app">
+    <div class="container d-flex flex-wrap align-items-stretch gap-2">
+      <div class="ms-auto d-flex align-items-center small text-muted" id="saveHint">Lokaal opgeslagen.</div>
+      <div class="ms-0 ms-md-2 d-flex align-items-center gap-2">
+        <button class="btn btn-outline-dark btn-sm" id="btn-export">Exporteren</button>
+        <input class="form-control form-control-sm" type="file" id="importFile" accept=".json" />
+      </div>
+    </div>      
+  </div>
+
+  <!-- Bootstrap bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Eigen script -->
+  <script src="./app.js"></script>
+</body>
+</html>

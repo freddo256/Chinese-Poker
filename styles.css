@@ -1,0 +1,51 @@
+/* Algemene layout */
+body { background: var(--bs-body-bg); }
+
+/* Sticky footer past mee met thema */
+.sticky-footer {
+  position: sticky;
+  bottom: 0;
+  background: var(--bs-body-bg);
+  border-top: 1px solid var(--bs-border-color);
+}
+
+/* Badge-ronde */
+.badge-round { min-width: 2.2rem; }
+
+/* Verbonden knopgroep – standaard via Bootstrap.
+   We forceren disabled grijs door 'btn-secondary disabled' te gebruiken in JS. */
+
+/* Optioneel: maak de knopgroep iets groter op mobiel */
+#footerBar .btn-group .btn {
+  padding-top: 0.7rem;
+  padding-bottom: 0.7rem;
+  font-weight: 500;
+}
+
+/* Historiek-knoppen in accordeon */
+.history-actions {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+/* In dark mode blijven borders subtiel */
+[data-bs-theme="dark"] .sticky-footer {
+  border-top-color: rgba(255,255,255,.15);
+}
+
+/* Ensure sticky footer always sits above accordion items */
+.sticky-footer {
+  z-index: 100;   /* add this */
+}
+
+/* Reduce accordion item z-index if hovered or expanded */
+.accordion .accordion-item {
+  position: relative;
+  z-index: 1;    /* reset */
+}
+
+.accordion .accordion-item:has(.accordion-button:hover),
+.accordion .accordion-item:has(.accordion-collapse.show) {
+  z-index: 2;    /* only slightly elevated */
+}
